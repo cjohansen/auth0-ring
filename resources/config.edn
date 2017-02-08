@@ -1,0 +1,11 @@
+{:domain "yourapp.auth0.com"
+ :issuer "https://yourapp.auth0.com/"
+ :client-id "client id"
+ :signing-algorithm :hs256
+ :client-secret "client secret"
+ :scope "openid user_id name nickname email picture"
+ :callback-path "/auth/callback"
+ :error-redirect "/login"
+ :success-redirect "/"
+ :logout-handler "/auth/logout"
+ :logout-redirect "/"}
