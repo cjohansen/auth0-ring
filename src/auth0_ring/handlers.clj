@@ -1,5 +1,6 @@
 (ns auth0-ring.handlers
-  (:require [auth0-ring.core :refer [qualify-url get-logout-url http-only-cookie delete-cookie]])
+  (:require [auth0-ring.core :refer [qualify-url get-logout-url http-only-cookie delete-cookie]]
+            [clojure.string :as s])
   (:import [com.auth0 NonceFactory QueryParamUtils Auth0ClientImpl]))
 
 (defn query-param [req p]
@@ -61,9 +62,15 @@
                "access-token" (delete-cookie req)}
      :headers {"Location" (:logout-redirect config)}}))
 
+(defn get-nonce [req]
+  (let [cookie (:value (get (:cookies req) "nonce"))]
+    (if (s/blank? cookie)
+      (NonceFactory/create)
+      cookie)))
+
 (defn wrap-login-handler [handler]
   (fn [req]
-    (let [nonce (NonceFactory/create)]
+    (let [nonce (get-nonce req)]
       (assoc-in (handler (assoc req :nonce nonce))
                 [:cookies "nonce"]
                 (http-only-cookie req {:value nonce :max-age 600})))))
