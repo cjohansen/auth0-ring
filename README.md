@@ -115,8 +115,16 @@ Then create your web handler:
 ;; config ...
 ;; login handler ...
 
+(defn auth-callback [auth0-user]
+  ;; Optional hook for when you need to sync user profile details into a local
+  ;; database, session etc.
+  ;;
+  ;; Refer to the Auth0User API:
+  ;; https://github.com/auth0/auth0-java-mvc-common/blob/master/src/main/java/com/auth0/Auth0User.java
+  (println (.getUserId auth0-user)))
+
 (defn web-handler [req]
-  (let [callback-handler (auth0/create-callback-handler config)
+  (let [callback-handler (auth0/create-callback-handler config :on-authenticated auth-callback)
         logout-callback-handler (auth0/create-logout-callback-handler config)
         logout-handler (auth0/create-logout-handler config)]
     (case (:uri req)
