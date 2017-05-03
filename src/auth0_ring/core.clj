@@ -5,7 +5,9 @@
   (URLEncoder/encode str "utf-8"))
 
 (defn qualify-url [req path]
-  (str (name (:scheme req)) "://" (get (:headers req) "host") path))
+  (if (re-find #"^https?://" path)
+    path
+    (str (name (:scheme req)) "://" (get (:headers req) "host") path)))
 
 (defn get-logout-url [req config]
   (str "https://" (:domain config) "/v2/logout?"
