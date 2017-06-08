@@ -36,7 +36,7 @@
     (qualify-url req (get-url-path return-url))
     (:success-redirect config)))
 
-(defn create-callback-handler [config & {:keys [on-authenticated]}]
+(defn create-callback-handler [config & [{:keys [on-authenticated]}]]
   (let [auth0-client (create-client config)
         callback-uri (or (:callback-uri config) "/callback")]
     (fn [req]
@@ -44,9 +44,10 @@
         (if (is-valid req)
           (let [tokens (.getTokens auth0-client
                                    (query-param req :code)
-                                   (redirect-uri req (:success-redirect config)))]
+                                   (redirect-uri req (:success-redirect config)))
+                user-profile (.getUserProfile auth0-client tokens)]
             (when (fn? on-authenticated)
-              (on-authenticated (.getUserProfile auth0-client tokens)))
+              (on-authenticated user-profile tokens))
             {:status 302
              :headers {"Location" (get-success-redirect req config)}
              :cookies {"nonce" (delete-cookie req)
@@ -56,6 +57,7 @@
         (catch RuntimeException e
           (.printStackTrace e)
           {:status 302 :headers {"Location" (:error-redirect config)}})))))
+
 
 (defn create-logout-callback-handler [config]
   (fn [req]
