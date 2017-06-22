@@ -36,7 +36,8 @@
     (qualify-url req (get-url-path return-url))
     (:success-redirect config)))
 
-(defn create-callback-handler [config & [{:keys [on-authenticated]}]]
+(defn create-callback-handler [config & [{:keys [on-authenticated cookie-opts]
+                                          :or {cookie-opts {}}}]]
   (let [auth0-client (create-client config)
         callback-uri (or (:callback-uri config) "/callback")]
     (fn [req]
@@ -51,8 +52,12 @@
             {:status 302
              :headers {"Location" (get-success-redirect req config)}
              :cookies {"nonce" (delete-cookie req)
-                       "id-token" (http-only-cookie req {:value (.getIdToken tokens)})
-                       "access-token" (http-only-cookie req {:value (.getAccessToken tokens)})}})
+                       "id-token" (http-only-cookie req (merge
+                                                          cookie-opts
+                                                          {:value (.getIdToken tokens)}))
+                       "access-token" (http-only-cookie req (merge
+                                                              cookie-opts
+                                                              {:value (.getAccessToken tokens)}))}})
           {:status 302 :headers {"Location" (:error-redirect config)}})
         (catch RuntimeException e
           (.printStackTrace e)
