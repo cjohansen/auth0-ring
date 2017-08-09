@@ -8,7 +8,7 @@
     (fn [req]
       (let [id-token (get-in req [:cookies "id-token" :value])
             access-token (get-in req [:cookies "access-token" :value])]
-        (if (and id-token access-token)
+        (if id-token
           (if-let [user (verify-token jwt-verifier id-token)]
             (handler (assoc req :user (keywordize-keys (into {} user))))
             (update-in (handler req) [:cookies] #(merge {"id-token" (delete-cookie req)
