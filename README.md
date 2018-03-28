@@ -8,7 +8,11 @@ manner (e.g. no sessions).
 
 ## Install
 
-Add [auth0-ring "0.1.0"] to :dependencies in your project.clj.
+Add to `:dependencies` in your project.clj:
+
+```clj
+[auth0-ring "0.4.4"]
+```
 
 ## Prerequisites
 
